@@ -28,7 +28,7 @@ export function registerUserTools(server: McpServer, jiraClient: Version3Client)
           rateLimiters.standard,
           'get_user'
         );
-        
+
         // Args are automatically validated by MCP SDK
         const validatedArgs = args;
         const user = await jiraClient.users.getUser({
@@ -37,15 +37,22 @@ export function registerUserTools(server: McpServer, jiraClient: Version3Client)
         });
 
         return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify(user, null, 2)
-          }]
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(user, null, 2),
+            },
+          ],
         };
       } catch (error) {
         // Audit failure
-        auditLogger.logFailure('get_user', 'user', error instanceof Error ? error.message : 'Unknown error', { accountId: args.accountId });
-        
+        auditLogger.logFailure(
+          'get_user',
+          'user',
+          error instanceof Error ? error.message : 'Unknown error',
+          { accountId: args.accountId }
+        );
+
         if (error instanceof SecurityError) {
           throw new Error(`Security violation: ${error.message}`);
         }
@@ -75,7 +82,7 @@ export function registerUserTools(server: McpServer, jiraClient: Version3Client)
           rateLimiters.standard,
           'get_user_groups'
         );
-        
+
         // Args are automatically validated by MCP SDK
         const validatedArgs = args;
         const groups = await jiraClient.users.getUserGroups({
@@ -83,15 +90,22 @@ export function registerUserTools(server: McpServer, jiraClient: Version3Client)
         });
 
         return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify(groups, null, 2)
-          }]
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(groups, null, 2),
+            },
+          ],
         };
       } catch (error) {
         // Audit failure
-        auditLogger.logFailure('get_user_groups', 'user', error instanceof Error ? error.message : 'Unknown error', { accountId: args.accountId });
-        
+        auditLogger.logFailure(
+          'get_user_groups',
+          'user',
+          error instanceof Error ? error.message : 'Unknown error',
+          { accountId: args.accountId }
+        );
+
         if (error instanceof SecurityError) {
           throw new Error(`Security violation: ${error.message}`);
         }
@@ -117,21 +131,24 @@ export function registerUserTools(server: McpServer, jiraClient: Version3Client)
         // Rate limiting and audit logging
         await withRateLimit(
           async () => {
-            auditLogger.logOperation('find_users', 'user', { query: args.query, maxResults: args.maxResults });
+            auditLogger.logOperation('find_users', 'user', {
+              query: args.query,
+              maxResults: args.maxResults,
+            });
             return true;
           },
           rateLimiters.search,
           'find_users'
         );
-        
+
         // Args are automatically validated by MCP SDK
         const validatedArgs = args;
-        
+
         // Enhanced query validation
         if (validatedArgs.query.length > 100) {
           throw new Error('Search query too long (max 100 characters)');
         }
-        
+
         // Basic sanitization for search query - prevent dangerous patterns
         const dangerousPatterns = [
           /<script[^>]*>.*?<\/script>/gi,
@@ -140,7 +157,7 @@ export function registerUserTools(server: McpServer, jiraClient: Version3Client)
           /onload=/gi,
           /onerror=/gi,
         ];
-        
+
         for (const pattern of dangerousPatterns) {
           if (pattern.test(validatedArgs.query)) {
             throw new SecurityError(
@@ -157,15 +174,22 @@ export function registerUserTools(server: McpServer, jiraClient: Version3Client)
         });
 
         return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify(users, null, 2)
-          }]
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(users, null, 2),
+            },
+          ],
         };
       } catch (error) {
         // Audit failure
-        auditLogger.logFailure('find_users', 'user', error instanceof Error ? error.message : 'Unknown error', { query: args.query });
-        
+        auditLogger.logFailure(
+          'find_users',
+          'user',
+          error instanceof Error ? error.message : 'Unknown error',
+          { query: args.query }
+        );
+
         if (error instanceof SecurityError) {
           throw new Error(`Security violation: ${error.message}`);
         }
@@ -193,21 +217,25 @@ export function registerUserTools(server: McpServer, jiraClient: Version3Client)
         // Rate limiting and audit logging
         await withRateLimit(
           async () => {
-            auditLogger.logOperation('find_assignable_users', 'user', { query: args.query, project: args.project, issueKey: args.issueKey });
+            auditLogger.logOperation('find_assignable_users', 'user', {
+              query: args.query,
+              project: args.project,
+              issueKey: args.issueKey,
+            });
             return true;
           },
           rateLimiters.search,
           'find_assignable_users'
         );
-        
+
         // Args are automatically validated by MCP SDK
         const validatedArgs = args;
-        
+
         // Query validation if provided
         if (validatedArgs.query && validatedArgs.query.length > 100) {
           throw new Error('Search query too long (max 100 characters)');
         }
-        
+
         // Basic sanitization for search query if provided
         if (validatedArgs.query) {
           const dangerousPatterns = [
@@ -217,7 +245,7 @@ export function registerUserTools(server: McpServer, jiraClient: Version3Client)
             /onload=/gi,
             /onerror=/gi,
           ];
-          
+
           for (const pattern of dangerousPatterns) {
             if (pattern.test(validatedArgs.query)) {
               throw new SecurityError(
@@ -236,15 +264,22 @@ export function registerUserTools(server: McpServer, jiraClient: Version3Client)
         });
 
         return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify(users, null, 2)
-          }]
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(users, null, 2),
+            },
+          ],
         };
       } catch (error) {
         // Audit failure
-        auditLogger.logFailure('find_assignable_users', 'user', error instanceof Error ? error.message : 'Unknown error', { query: args.query, project: args.project, issueKey: args.issueKey });
-        
+        auditLogger.logFailure(
+          'find_assignable_users',
+          'user',
+          error instanceof Error ? error.message : 'Unknown error',
+          { query: args.query, project: args.project, issueKey: args.issueKey }
+        );
+
         if (error instanceof SecurityError) {
           throw new Error(`Security violation: ${error.message}`);
         }

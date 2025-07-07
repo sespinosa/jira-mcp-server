@@ -2,7 +2,12 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { Version3Client } from 'jira.js';
 import { z } from 'zod';
 import { createReadStream, writeFileSync } from 'fs';
-import { validateFilePath, validateSavePath, validateDestructiveOperation, SecurityError } from '../utils/security.js';
+import {
+  validateFilePath,
+  validateSavePath,
+  validateDestructiveOperation,
+  SecurityError,
+} from '../utils/security.js';
 import { logFileOperation, logDestructiveOperation } from '../utils/auditLogger.js';
 
 export function registerAttachmentTools(server: McpServer, jira: Version3Client) {
@@ -43,13 +48,19 @@ export function registerAttachmentTools(server: McpServer, jira: Version3Client)
         logFileOperation('upload_attachment', validatedPath, true);
 
         return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify({
-              success: true,
-              data: attachment,
-            }, null, 2)
-          }]
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  success: true,
+                  data: attachment,
+                },
+                null,
+                2
+              ),
+            },
+          ],
         };
       } catch (error) {
         if (error instanceof SecurityError) {
@@ -69,7 +80,10 @@ export function registerAttachmentTools(server: McpServer, jira: Version3Client)
       inputSchema: {
         attachmentId: z.string().describe('Attachment ID'),
         savePath: z.string().describe('Path to save the file'),
-        allowedDirectories: z.array(z.string()).optional().describe('Allowed directories for saving'),
+        allowedDirectories: z
+          .array(z.string())
+          .optional()
+          .describe('Allowed directories for saving'),
       },
     },
     async (args) => {
@@ -96,17 +110,23 @@ export function registerAttachmentTools(server: McpServer, jira: Version3Client)
         logFileOperation('download_attachment', validatedSavePath, true);
 
         return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify({
-              success: true,
-              data: {
-                fileName: attachment.filename,
-                size: attachment.size,
-                savedTo: validatedSavePath,
-              },
-            }, null, 2)
-          }]
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  success: true,
+                  data: {
+                    fileName: attachment.filename,
+                    size: attachment.size,
+                    savedTo: validatedSavePath,
+                  },
+                },
+                null,
+                2
+              ),
+            },
+          ],
         };
       } catch (error) {
         if (error instanceof SecurityError) {
@@ -136,13 +156,19 @@ export function registerAttachmentTools(server: McpServer, jira: Version3Client)
       });
 
       return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify({
-            success: true,
-            data: issue.fields.attachment || [],
-          }, null, 2)
-        }]
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                success: true,
+                data: issue.fields.attachment || [],
+              },
+              null,
+              2
+            ),
+          },
+        ],
       };
     }
   );
@@ -155,7 +181,10 @@ export function registerAttachmentTools(server: McpServer, jira: Version3Client)
       description: 'Delete an attachment from Jira (DESTRUCTIVE - requires confirmation)',
       inputSchema: {
         attachmentId: z.string().describe('Attachment ID'),
-        confirmation: z.string().optional().describe('Required confirmation phrase: CONFIRM_DELETE'),
+        confirmation: z
+          .string()
+          .optional()
+          .describe('Required confirmation phrase: CONFIRM_DELETE'),
       },
     },
     async (args) => {
@@ -172,16 +201,27 @@ export function registerAttachmentTools(server: McpServer, jira: Version3Client)
           id: validatedArgs.attachmentId,
         });
 
-        logDestructiveOperation('delete_attachment', 'attachment', validatedArgs.attachmentId, true);
+        logDestructiveOperation(
+          'delete_attachment',
+          'attachment',
+          validatedArgs.attachmentId,
+          true
+        );
 
         return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify({
-              success: true,
-              message: 'Attachment deleted successfully',
-            }, null, 2)
-          }]
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  success: true,
+                  message: 'Attachment deleted successfully',
+                },
+                null,
+                2
+              ),
+            },
+          ],
         };
       } catch (error) {
         if (error instanceof SecurityError) {
@@ -211,13 +251,19 @@ export function registerAttachmentTools(server: McpServer, jira: Version3Client)
       });
 
       return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify({
-            success: true,
-            data: attachment,
-          }, null, 2)
-        }]
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                success: true,
+                data: attachment,
+              },
+              null,
+              2
+            ),
+          },
+        ],
       };
     }
   );

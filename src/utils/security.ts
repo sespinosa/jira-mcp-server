@@ -9,21 +9,21 @@ export interface FileValidationOptions {
 }
 
 export class SecurityError extends Error {
-  constructor(message: string, public code: string) {
+  constructor(
+    message: string,
+    public code: string
+  ) {
     super(message);
     this.name = 'SecurityError';
   }
 }
 
-export function validateFilePath(
-  filePath: string,
-  options: FileValidationOptions = {}
-): string {
+export function validateFilePath(filePath: string, options: FileValidationOptions = {}): string {
   const {
     allowedExtensions = [],
     maxFileSize = 50 * 1024 * 1024, // 50MB default
     allowedDirectories = [],
-    blockDangerousPatterns = true
+    blockDangerousPatterns = true,
   } = options;
 
   // Normalize and resolve the path
@@ -33,11 +33,21 @@ export function validateFilePath(
   // Check for path traversal attempts
   if (blockDangerousPatterns) {
     const dangerousPatterns = [
-      '../', '..\\', '..%2F', '..%5C',
-      '%2e%2e%2f', '%2e%2e%5c',
-      '/./', '/..', '\\..', '\\.\\',
-      'file://', 'http://', 'https://',
-      'ftp://', 'sftp://'
+      '../',
+      '..\\',
+      '..%2F',
+      '..%5C',
+      '%2e%2e%2f',
+      '%2e%2e%5c',
+      '/./',
+      '/..',
+      '\\..',
+      '\\.\\',
+      'file://',
+      'http://',
+      'https://',
+      'ftp://',
+      'sftp://',
     ];
 
     for (const pattern of dangerousPatterns) {
@@ -52,7 +62,7 @@ export function validateFilePath(
 
   // Validate against allowed directories
   if (allowedDirectories.length > 0) {
-    const isInAllowedDirectory = allowedDirectories.some(allowedDir => {
+    const isInAllowedDirectory = allowedDirectories.some((allowedDir) => {
       const resolvedAllowedDir = resolve(allowedDir);
       return resolvedPath.startsWith(resolvedAllowedDir);
     });
@@ -67,10 +77,7 @@ export function validateFilePath(
 
   // Check if file exists
   if (!existsSync(resolvedPath)) {
-    throw new SecurityError(
-      `File not found: ${resolvedPath}`,
-      'FILE_NOT_FOUND'
-    );
+    throw new SecurityError(`File not found: ${resolvedPath}`, 'FILE_NOT_FOUND');
   }
 
   // Get file stats
@@ -78,10 +85,7 @@ export function validateFilePath(
 
   // Check if it's actually a file
   if (!stats.isFile()) {
-    throw new SecurityError(
-      `Path is not a file: ${resolvedPath}`,
-      'NOT_A_FILE'
-    );
+    throw new SecurityError(`Path is not a file: ${resolvedPath}`, 'NOT_A_FILE');
   }
 
   // Check file size
@@ -106,14 +110,8 @@ export function validateFilePath(
   return resolvedPath;
 }
 
-export function validateSavePath(
-  savePath: string,
-  options: FileValidationOptions = {}
-): string {
-  const {
-    allowedDirectories = [],
-    blockDangerousPatterns = true
-  } = options;
+export function validateSavePath(savePath: string, options: FileValidationOptions = {}): string {
+  const { allowedDirectories = [], blockDangerousPatterns = true } = options;
 
   // Normalize and resolve the path
   const normalizedPath = normalize(savePath);
@@ -122,11 +120,21 @@ export function validateSavePath(
   // Check for path traversal attempts
   if (blockDangerousPatterns) {
     const dangerousPatterns = [
-      '../', '..\\', '..%2F', '..%5C',
-      '%2e%2e%2f', '%2e%2e%5c',
-      '/./', '/..', '\\..', '\\.\\',
-      'file://', 'http://', 'https://',
-      'ftp://', 'sftp://'
+      '../',
+      '..\\',
+      '..%2F',
+      '..%5C',
+      '%2e%2e%2f',
+      '%2e%2e%5c',
+      '/./',
+      '/..',
+      '\\..',
+      '\\.\\',
+      'file://',
+      'http://',
+      'https://',
+      'ftp://',
+      'sftp://',
     ];
 
     for (const pattern of dangerousPatterns) {
@@ -141,7 +149,7 @@ export function validateSavePath(
 
   // Validate against allowed directories
   if (allowedDirectories.length > 0) {
-    const isInAllowedDirectory = allowedDirectories.some(allowedDir => {
+    const isInAllowedDirectory = allowedDirectories.some((allowedDir) => {
       const resolvedAllowedDir = resolve(allowedDir);
       return resolvedPath.startsWith(resolvedAllowedDir);
     });
@@ -179,11 +187,11 @@ export function sanitizeJQL(jql: string): string {
     /vbscript:/gi,
     /onload=/gi,
     /onerror=/gi,
-    /onclick=/gi
+    /onclick=/gi,
   ];
 
   const sanitizedJQL = jql;
-  
+
   for (const pattern of dangerousPatterns) {
     if (pattern.test(sanitizedJQL)) {
       throw new SecurityError(
@@ -222,7 +230,7 @@ export function validateDestructiveOperation(
   const {
     requireConfirmation = true,
     confirmationPhrase = 'CONFIRM_DELETE',
-    auditLog = true
+    auditLog = true,
   } = options;
 
   if (requireConfirmation) {
@@ -235,6 +243,8 @@ export function validateDestructiveOperation(
   }
 
   if (auditLog) {
-    console.warn(`[AUDIT] Destructive operation executed: ${operation} at ${new Date().toISOString()}`);
+    console.warn(
+      `[AUDIT] Destructive operation executed: ${operation} at ${new Date().toISOString()}`
+    );
   }
 }

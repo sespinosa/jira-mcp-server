@@ -23,13 +23,16 @@ export function registerSearchTools(server: McpServer, jiraClient: Version3Clien
         // Rate limiting and audit logging
         await withRateLimit(
           async () => {
-            auditLogger.logOperation('search_users', 'user', { query: args.query, maxResults: args.maxResults });
+            auditLogger.logOperation('search_users', 'user', {
+              query: args.query,
+              maxResults: args.maxResults,
+            });
             return true;
           },
           rateLimiters.search,
           'search_users'
         );
-        
+
         // Validate args using Zod for runtime validation
         const searchSchema = z.object({
           query: z.string(),
@@ -37,12 +40,12 @@ export function registerSearchTools(server: McpServer, jiraClient: Version3Clien
           startAt: z.number().default(0),
         });
         const validatedArgs = searchSchema.parse(args);
-        
+
         // Enhanced query validation
         if (validatedArgs.query.length > 100) {
           throw new Error('Search query too long (max 100 characters)');
         }
-        
+
         // Basic sanitization for search query - prevent dangerous patterns
         const dangerousPatterns = [
           /<script[^>]*>.*?<\/script>/gi,
@@ -51,7 +54,7 @@ export function registerSearchTools(server: McpServer, jiraClient: Version3Clien
           /onload=/gi,
           /onerror=/gi,
         ];
-        
+
         for (const pattern of dangerousPatterns) {
           if (pattern.test(validatedArgs.query)) {
             throw new SecurityError(
@@ -68,15 +71,22 @@ export function registerSearchTools(server: McpServer, jiraClient: Version3Clien
         });
 
         return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify(users, null, 2)
-          }]
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(users, null, 2),
+            },
+          ],
         };
       } catch (error) {
         // Audit failure
-        auditLogger.logFailure('search_users', 'user', error instanceof Error ? error.message : 'Unknown error', { query: args.query });
-        
+        auditLogger.logFailure(
+          'search_users',
+          'user',
+          error instanceof Error ? error.message : 'Unknown error',
+          { query: args.query }
+        );
+
         if (error instanceof SecurityError) {
           throw new Error(`Security violation: ${error.message}`);
         }
@@ -106,7 +116,7 @@ export function registerSearchTools(server: McpServer, jiraClient: Version3Clien
           rateLimiters.standard,
           'get_issue_transitions'
         );
-        
+
         // Validate args using Zod for runtime validation
         const transitionSchema = z.object({
           issueKey: z.string(),
@@ -117,15 +127,22 @@ export function registerSearchTools(server: McpServer, jiraClient: Version3Clien
         });
 
         return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify(transitions, null, 2)
-          }]
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(transitions, null, 2),
+            },
+          ],
         };
       } catch (error) {
         // Audit failure
-        auditLogger.logFailure('get_issue_transitions', 'issue', error instanceof Error ? error.message : 'Unknown error', { issueKey: args.issueKey });
-        
+        auditLogger.logFailure(
+          'get_issue_transitions',
+          'issue',
+          error instanceof Error ? error.message : 'Unknown error',
+          { issueKey: args.issueKey }
+        );
+
         if (error instanceof SecurityError) {
           throw new Error(`Security violation: ${error.message}`);
         }

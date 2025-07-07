@@ -39,7 +39,7 @@ export class AuditLogger {
       maxMemoryUsageMB: options.maxMemoryUsageMB ?? 50,
       batchCleanupSize: options.batchCleanupSize ?? 1000,
     };
-    
+
     // Start periodic cleanup
     this.startPeriodicCleanup();
   }
@@ -52,7 +52,7 @@ export class AuditLogger {
 
     // Add to in-memory logs
     this.logs.push(fullEntry);
-    
+
     // Trigger cleanup if memory usage is high or if it's time
     const now = Date.now();
     if (this.shouldTriggerCleanup(now)) {
@@ -98,18 +98,27 @@ export class AuditLogger {
     this.logOperation(operation, resource, details, { success: true });
   }
 
-  logFailure(operation: string, resource: string, error: string, details: Record<string, any> = {}): void {
-    this.logOperation(operation, resource, details, { 
-      success: false, 
+  logFailure(
+    operation: string,
+    resource: string,
+    error: string,
+    details: Record<string, any> = {}
+  ): void {
+    this.logOperation(operation, resource, details, {
+      success: false,
       error,
-      riskLevel: 'high'
+      riskLevel: 'high',
     });
   }
 
-  logSecurityEvent(operation: string, details: Record<string, any>, severity: 'medium' | 'high' | 'critical' = 'high'): void {
-    this.logOperation(operation, 'security', details, { 
+  logSecurityEvent(
+    operation: string,
+    details: Record<string, any>,
+    severity: 'medium' | 'high' | 'critical' = 'high'
+  ): void {
+    this.logOperation(operation, 'security', details, {
       riskLevel: severity,
-      success: false 
+      success: false,
     });
   }
 
@@ -117,27 +126,33 @@ export class AuditLogger {
     // Critical operations
     const criticalOps = ['delete', 'remove', 'destroy', 'purge'];
     const criticalResources = ['user', 'project', 'board'];
-    
-    if (criticalOps.some(op => operation.toLowerCase().includes(op)) ||
-        criticalResources.some(res => resource.toLowerCase().includes(res))) {
+
+    if (
+      criticalOps.some((op) => operation.toLowerCase().includes(op)) ||
+      criticalResources.some((res) => resource.toLowerCase().includes(res))
+    ) {
       return 'critical';
     }
 
     // High risk operations
     const highRiskOps = ['bulk', 'mass', 'complete', 'close', 'resolve', 'transition'];
     const highRiskResources = ['sprint', 'attachment', 'permission'];
-    
-    if (highRiskOps.some(op => operation.toLowerCase().includes(op)) ||
-        highRiskResources.some(res => resource.toLowerCase().includes(res))) {
+
+    if (
+      highRiskOps.some((op) => operation.toLowerCase().includes(op)) ||
+      highRiskResources.some((res) => resource.toLowerCase().includes(res))
+    ) {
       return 'high';
     }
 
     // Medium risk operations
     const mediumRiskOps = ['update', 'modify', 'edit', 'move', 'assign'];
     const mediumRiskResources = ['issue', 'comment', 'worklog'];
-    
-    if (mediumRiskOps.some(op => operation.toLowerCase().includes(op)) ||
-        mediumRiskResources.some(res => resource.toLowerCase().includes(res))) {
+
+    if (
+      mediumRiskOps.some((op) => operation.toLowerCase().includes(op)) ||
+      mediumRiskResources.some((res) => resource.toLowerCase().includes(res))
+    ) {
       return 'medium';
     }
 
@@ -148,9 +163,9 @@ export class AuditLogger {
     const prefix = `[AUDIT:${entry.riskLevel.toUpperCase()}]`;
     const message = `${entry.operation} on ${entry.resource}${entry.resourceId ? `:${entry.resourceId}` : ''}`;
     const status = entry.success ? 'SUCCESS' : 'FAILED';
-    
+
     const logLine = `${prefix} ${entry.timestamp} - ${message} - ${status}`;
-    
+
     switch (entry.riskLevel) {
       case 'critical':
         console.error(logLine, entry.details);
@@ -176,7 +191,7 @@ export class AuditLogger {
     if (this.cleanupTimer) {
       clearInterval(this.cleanupTimer);
     }
-    
+
     this.cleanupTimer = setInterval(() => {
       try {
         this.performCleanup();
@@ -184,7 +199,7 @@ export class AuditLogger {
         console.error('AuditLogger cleanup error:', error);
       }
     }, this.options.cleanupIntervalMs);
-    
+
     // Don't keep Node.js alive just for cleanup
     this.cleanupTimer.unref();
   }
@@ -194,17 +209,17 @@ export class AuditLogger {
     if (this.logs.length > this.options.maxLogEntries) {
       return true;
     }
-    
+
     // Cleanup if it's been too long since last cleanup
     if (now - this.lastCleanup > this.options.cleanupIntervalMs) {
       return true;
     }
-    
+
     // Cleanup if estimated memory usage is high
     if (this.getEstimatedMemoryUsage() > this.options.maxMemoryUsageMB) {
       return true;
     }
-    
+
     return false;
   }
 
@@ -212,39 +227,42 @@ export class AuditLogger {
     if (this.cleanupInProgress) {
       return;
     }
-    
+
     this.cleanupInProgress = true;
-    
+
     try {
       const initialLength = this.logs.length;
-      
+
       // Step 1: Remove entries older than retention period
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - this.options.retentionDays);
-      
-      this.logs = this.logs.filter(log => 
-        new Date(log.timestamp) > cutoffDate
-      );
-      
+
+      this.logs = this.logs.filter((log) => new Date(log.timestamp) > cutoffDate);
+
       // Step 2: If still too many entries, remove oldest ones in batches
       if (this.logs.length > this.options.maxLogEntries) {
         // Keep the most recent entries
         this.logs = this.logs.slice(-this.options.maxLogEntries);
       }
-      
+
       // Step 3: If memory usage is still high, remove more entries
-      while (this.getEstimatedMemoryUsage() > this.options.maxMemoryUsageMB && this.logs.length > 100) {
+      while (
+        this.getEstimatedMemoryUsage() > this.options.maxMemoryUsageMB &&
+        this.logs.length > 100
+      ) {
         const removeCount = Math.min(this.options.batchCleanupSize, this.logs.length - 100);
         this.logs.splice(0, removeCount);
       }
-      
+
       const finalLength = this.logs.length;
       const removedEntries = initialLength - finalLength;
-      
+
       if (removedEntries > 0) {
-        console.log(`AuditLogger cleanup: removed ${removedEntries} entries, ${finalLength} remaining`);
+        console.log(
+          `AuditLogger cleanup: removed ${removedEntries} entries, ${finalLength} remaining`
+        );
       }
-      
+
       this.lastCleanup = Date.now();
     } catch (error) {
       console.error('AuditLogger cleanup failed:', error);
@@ -255,14 +273,15 @@ export class AuditLogger {
 
   private getEstimatedMemoryUsage(): number {
     if (this.logs.length === 0) return 0;
-    
+
     // Estimate memory usage based on average entry size
     const sampleSize = Math.min(10, this.logs.length);
     const sampleEntries = this.logs.slice(-sampleSize);
-    const avgEntrySize = sampleEntries.reduce((sum, entry) => {
-      return sum + JSON.stringify(entry).length;
-    }, 0) / sampleSize;
-    
+    const avgEntrySize =
+      sampleEntries.reduce((sum, entry) => {
+        return sum + JSON.stringify(entry).length;
+      }, 0) / sampleSize;
+
     // Convert to MB (rough estimate including object overhead)
     return (this.logs.length * avgEntrySize * 2) / (1024 * 1024);
   }
@@ -279,40 +298,28 @@ export class AuditLogger {
 
     if (filter) {
       if (filter.operation) {
-        filtered = filtered.filter(log => 
-          log.operation.includes(filter.operation!)
-        );
+        filtered = filtered.filter((log) => log.operation.includes(filter.operation!));
       }
-      
+
       if (filter.resource) {
-        filtered = filtered.filter(log => 
-          log.resource.includes(filter.resource!)
-        );
+        filtered = filtered.filter((log) => log.resource.includes(filter.resource!));
       }
-      
+
       if (filter.riskLevel) {
-        filtered = filtered.filter(log => 
-          log.riskLevel === filter.riskLevel
-        );
+        filtered = filtered.filter((log) => log.riskLevel === filter.riskLevel);
       }
-      
+
       if (filter.success !== undefined) {
-        filtered = filtered.filter(log => 
-          log.success === filter.success
-        );
+        filtered = filtered.filter((log) => log.success === filter.success);
       }
-      
+
       if (filter.since) {
-        filtered = filtered.filter(log => 
-          new Date(log.timestamp) > filter.since!
-        );
+        filtered = filtered.filter((log) => new Date(log.timestamp) > filter.since!);
       }
     }
 
     // Sort by timestamp (most recent first)
-    filtered.sort((a, b) => 
-      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    );
+    filtered.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
     // Apply limit
     if (filter?.limit) {
@@ -325,25 +332,27 @@ export class AuditLogger {
   getSecurityEvents(limit = 100): AuditLogEntry[] {
     return this.getLogs({
       resource: 'security',
-      limit
+      limit,
     });
   }
 
   getFailedOperations(limit = 100): AuditLogEntry[] {
     return this.getLogs({
       success: false,
-      limit
+      limit,
     });
   }
 
   getHighRiskOperations(limit = 100): AuditLogEntry[] {
     return this.getLogs({
       riskLevel: 'high',
-      limit
-    }).concat(this.getLogs({
-      riskLevel: 'critical',
-      limit
-    }));
+      limit,
+    }).concat(
+      this.getLogs({
+        riskLevel: 'critical',
+        limit,
+      })
+    );
   }
 
   clear(): void {
@@ -384,7 +393,7 @@ export class AuditLogger {
 
     for (const log of this.logs) {
       byRiskLevel[log.riskLevel]++;
-      
+
       if (log.success) {
         bySuccess.success++;
       } else {
@@ -417,7 +426,12 @@ export const auditLogger = new AuditLogger({
 });
 
 // Convenience functions for common operations
-export const logFileOperation = (operation: string, filePath: string, success = true, error?: string) => {
+export const logFileOperation = (
+  operation: string,
+  filePath: string,
+  success = true,
+  error?: string
+) => {
   auditLogger.logOperation(operation, 'file', { filePath }, { success, error });
 };
 
@@ -425,21 +439,43 @@ export const logJQLSearch = (jql: string, resultCount: number, success = true, e
   auditLogger.logOperation('jql_search', 'search', { jql, resultCount }, { success, error });
 };
 
-export const logBulkOperation = (operation: string, resource: string, count: number, success = true, error?: string) => {
-  auditLogger.logOperation(`bulk_${operation}`, resource, { count }, { 
-    success, 
-    error,
-    riskLevel: 'high'
-  });
+export const logBulkOperation = (
+  operation: string,
+  resource: string,
+  count: number,
+  success = true,
+  error?: string
+) => {
+  auditLogger.logOperation(
+    `bulk_${operation}`,
+    resource,
+    { count },
+    {
+      success,
+      error,
+      riskLevel: 'high',
+    }
+  );
 };
 
-export const logDestructiveOperation = (operation: string, resource: string, resourceId?: string, success = true, error?: string) => {
-  auditLogger.logOperation(operation, resource, { destructive: true }, { 
-    resourceId,
-    success, 
-    error,
-    riskLevel: 'critical'
-  });
+export const logDestructiveOperation = (
+  operation: string,
+  resource: string,
+  resourceId?: string,
+  success = true,
+  error?: string
+) => {
+  auditLogger.logOperation(
+    operation,
+    resource,
+    { destructive: true },
+    {
+      resourceId,
+      success,
+      error,
+      riskLevel: 'critical',
+    }
+  );
 };
 
 export const logSecurityViolation = (violation: string, details: Record<string, any>) => {

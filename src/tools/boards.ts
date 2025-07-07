@@ -2,7 +2,12 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { Version3Client, AgileClient } from 'jira.js';
 import { z } from 'zod';
 
-export function registerBoardTools(server: McpServer, jira: Version3Client, jiraHost: string, jiraAuth: any) {
+export function registerBoardTools(
+  server: McpServer,
+  jira: Version3Client,
+  jiraHost: string,
+  jiraAuth: any
+) {
   // Create AgileClient with separate configuration
   const agile = new AgileClient({
     host: jiraHost,
@@ -35,13 +40,19 @@ export function registerBoardTools(server: McpServer, jira: Version3Client, jira
       });
 
       return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify({
-            success: true,
-            data: boards,
-          }, null, 2)
-        }]
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                success: true,
+                data: boards,
+              },
+              null,
+              2
+            ),
+          },
+        ],
       };
     }
   );
@@ -64,13 +75,19 @@ export function registerBoardTools(server: McpServer, jira: Version3Client, jira
       });
 
       return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify({
-            success: true,
-            data: board,
-          }, null, 2)
-        }]
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                success: true,
+                data: board,
+              },
+              null,
+              2
+            ),
+          },
+        ],
       };
     }
   );
@@ -93,13 +110,19 @@ export function registerBoardTools(server: McpServer, jira: Version3Client, jira
       });
 
       return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify({
-            success: true,
-            data: config,
-          }, null, 2)
-        }]
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                success: true,
+                data: config,
+              },
+              null,
+              2
+            ),
+          },
+        ],
       };
     }
   );
@@ -128,13 +151,19 @@ export function registerBoardTools(server: McpServer, jira: Version3Client, jira
       });
 
       return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify({
-            success: true,
-            data: issues,
-          }, null, 2)
-        }]
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                success: true,
+                data: issues,
+              },
+              null,
+              2
+            ),
+          },
+        ],
       };
     }
   );

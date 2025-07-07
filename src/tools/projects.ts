@@ -28,7 +28,7 @@ export function registerProjectTools(server: McpServer, jiraClient: Version3Clie
           rateLimiters.standard,
           'get_project'
         );
-        
+
         // Args are automatically validated by MCP SDK
         const validatedArgs = args;
         const project = await jiraClient.projects.getProject({
@@ -37,15 +37,22 @@ export function registerProjectTools(server: McpServer, jiraClient: Version3Clie
         });
 
         return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify(project, null, 2)
-          }]
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(project, null, 2),
+            },
+          ],
         };
       } catch (error) {
         // Audit failure
-        auditLogger.logFailure('get_project', 'project', error instanceof Error ? error.message : 'Unknown error', { projectKey: args.projectKey });
-        
+        auditLogger.logFailure(
+          'get_project',
+          'project',
+          error instanceof Error ? error.message : 'Unknown error',
+          { projectKey: args.projectKey }
+        );
+
         if (error instanceof SecurityError) {
           throw new Error(`Security violation: ${error.message}`);
         }
@@ -69,13 +76,15 @@ export function registerProjectTools(server: McpServer, jiraClient: Version3Clie
         // Rate limiting and audit logging
         await withRateLimit(
           async () => {
-            auditLogger.logOperation('get_project_components', 'project', { projectKey: args.projectKey });
+            auditLogger.logOperation('get_project_components', 'project', {
+              projectKey: args.projectKey,
+            });
             return true;
           },
           rateLimiters.standard,
           'get_project_components'
         );
-        
+
         // Args are automatically validated by MCP SDK
         const validatedArgs = args;
         const components = await jiraClient.projectComponents.getProjectComponents({
@@ -83,15 +92,22 @@ export function registerProjectTools(server: McpServer, jiraClient: Version3Clie
         });
 
         return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify(components, null, 2)
-          }]
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(components, null, 2),
+            },
+          ],
         };
       } catch (error) {
         // Audit failure
-        auditLogger.logFailure('get_project_components', 'project', error instanceof Error ? error.message : 'Unknown error', { projectKey: args.projectKey });
-        
+        auditLogger.logFailure(
+          'get_project_components',
+          'project',
+          error instanceof Error ? error.message : 'Unknown error',
+          { projectKey: args.projectKey }
+        );
+
         if (error instanceof SecurityError) {
           throw new Error(`Security violation: ${error.message}`);
         }
@@ -115,13 +131,15 @@ export function registerProjectTools(server: McpServer, jiraClient: Version3Clie
         // Rate limiting and audit logging
         await withRateLimit(
           async () => {
-            auditLogger.logOperation('get_project_versions', 'project', { projectKey: args.projectKey });
+            auditLogger.logOperation('get_project_versions', 'project', {
+              projectKey: args.projectKey,
+            });
             return true;
           },
           rateLimiters.standard,
           'get_project_versions'
         );
-        
+
         // Args are automatically validated by MCP SDK
         const validatedArgs = args;
         const versions = await jiraClient.projectVersions.getProjectVersions({
@@ -129,15 +147,22 @@ export function registerProjectTools(server: McpServer, jiraClient: Version3Clie
         });
 
         return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify(versions, null, 2)
-          }]
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(versions, null, 2),
+            },
+          ],
         };
       } catch (error) {
         // Audit failure
-        auditLogger.logFailure('get_project_versions', 'project', error instanceof Error ? error.message : 'Unknown error', { projectKey: args.projectKey });
-        
+        auditLogger.logFailure(
+          'get_project_versions',
+          'project',
+          error instanceof Error ? error.message : 'Unknown error',
+          { projectKey: args.projectKey }
+        );
+
         if (error instanceof SecurityError) {
           throw new Error(`Security violation: ${error.message}`);
         }

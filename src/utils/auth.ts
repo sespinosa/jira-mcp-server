@@ -17,7 +17,7 @@ export function getJiraAuthentication(config: JiraConfig) {
       },
     };
   }
-  
+
   return {
     basic: {
       email: config.JIRA_EMAIL,

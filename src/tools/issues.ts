@@ -1,7 +1,11 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { Version3Client } from 'jira.js';
 import { z } from 'zod';
-import { validateIssueFields, safeFieldSets, FieldValidationError } from '../utils/fieldValidation.js';
+import {
+  validateIssueFields,
+  safeFieldSets,
+  FieldValidationError,
+} from '../utils/fieldValidation.js';
 import { rateLimiters, withRateLimit } from '../utils/rateLimiter.js';
 import { auditLogger } from '../utils/auditLogger.js';
 import { SecurityError } from '../utils/security.js';
@@ -28,13 +32,16 @@ export function registerIssueTools(server: McpServer, jiraClient: Version3Client
         // Rate limiting and audit logging
         await withRateLimit(
           async () => {
-            auditLogger.logOperation('create_issue', 'issue', { projectKey: args.projectKey, summary: args.summary });
+            auditLogger.logOperation('create_issue', 'issue', {
+              projectKey: args.projectKey,
+              summary: args.summary,
+            });
             return true;
           },
           rateLimiters.standard,
           'create_issue'
         );
-        
+
         // Validate args using Zod for runtime validation
         const createSchema = z.object({
           projectKey: z.string(),
@@ -52,52 +59,68 @@ export function registerIssueTools(server: McpServer, jiraClient: Version3Client
           summary: validatedArgs.summary,
           issuetype: { name: validatedArgs.issueType },
         };
-        
+
         if (validatedArgs.description) {
           issueFields.description = {
             type: 'doc',
             version: 1,
-            content: [{
-              type: 'paragraph',
-              content: [{ type: 'text', text: validatedArgs.description }]
-            }]
+            content: [
+              {
+                type: 'paragraph',
+                content: [{ type: 'text', text: validatedArgs.description }],
+              },
+            ],
           };
         }
-        
+
         if (validatedArgs.priority) issueFields.priority = { name: validatedArgs.priority };
         if (validatedArgs.assignee) issueFields.assignee = { accountId: validatedArgs.assignee };
         if (validatedArgs.labels) issueFields.labels = validatedArgs.labels;
-        
+
         // Validate fields for security
         const validatedFields = validateIssueFields(issueFields, {
           allowedFields: safeFieldSets.basic,
-          blockDangerousValues: true
+          blockDangerousValues: true,
         });
-        
+
         const issue = await jiraClient.issues.createIssue({
           fields: validatedFields as any,
         });
-        
+
         // Log successful creation
-        auditLogger.logSuccess('create_issue', 'issue', { issueKey: issue.key, projectKey: validatedArgs.projectKey });
+        auditLogger.logSuccess('create_issue', 'issue', {
+          issueKey: issue.key,
+          projectKey: validatedArgs.projectKey,
+        });
 
         return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify({
-              success: true,
-              data: {
-                key: issue.key,
-                id: issue.id,
-                self: issue.self,
-              },
-            }, null, 2)
-          }]
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  success: true,
+                  data: {
+                    key: issue.key,
+                    id: issue.id,
+                    self: issue.self,
+                  },
+                },
+                null,
+                2
+              ),
+            },
+          ],
         };
       } catch (error) {
         // Audit failure
-        auditLogger.logFailure('create_issue', 'issue', error instanceof Error ? error.message : 'Unknown error', { projectKey: args.projectKey });
-        
+        auditLogger.logFailure(
+          'create_issue',
+          'issue',
+          error instanceof Error ? error.message : 'Unknown error',
+          { projectKey: args.projectKey }
+        );
+
         if (error instanceof FieldValidationError) {
           throw new Error(`Field validation failed: ${error.message}`);
         }
@@ -109,7 +132,7 @@ export function registerIssueTools(server: McpServer, jiraClient: Version3Client
     }
   );
 
-  // Update Issue  
+  // Update Issue
   server.registerTool(
     'update_issue',
     {
@@ -135,7 +158,7 @@ export function registerIssueTools(server: McpServer, jiraClient: Version3Client
           rateLimiters.standard,
           'update_issue'
         );
-        
+
         // Validate args using Zod for runtime validation
         const updateSchema = z.object({
           issueKey: z.string(),
@@ -147,16 +170,18 @@ export function registerIssueTools(server: McpServer, jiraClient: Version3Client
         });
         const validatedArgs = updateSchema.parse(args);
         const fields: any = {};
-        
+
         if (validatedArgs.summary) fields.summary = validatedArgs.summary;
         if (validatedArgs.description) {
           fields.description = {
             type: 'doc',
             version: 1,
-            content: [{
-              type: 'paragraph',
-              content: [{ type: 'text', text: validatedArgs.description }]
-            }]
+            content: [
+              {
+                type: 'paragraph',
+                content: [{ type: 'text', text: validatedArgs.description }],
+              },
+            ],
           };
         }
         if (validatedArgs.priority) fields.priority = { name: validatedArgs.priority };
@@ -166,30 +191,44 @@ export function registerIssueTools(server: McpServer, jiraClient: Version3Client
         // Validate fields for security
         const validatedFields = validateIssueFields(fields, {
           allowedFields: safeFieldSets.basic,
-          blockDangerousValues: true
+          blockDangerousValues: true,
         });
 
         await jiraClient.issues.editIssue({
           issueIdOrKey: validatedArgs.issueKey,
           fields: validatedFields,
         });
-        
+
         // Log successful update
-        auditLogger.logSuccess('update_issue', 'issue', { issueKey: validatedArgs.issueKey, updatedFields: Object.keys(validatedFields) });
+        auditLogger.logSuccess('update_issue', 'issue', {
+          issueKey: validatedArgs.issueKey,
+          updatedFields: Object.keys(validatedFields),
+        });
 
         return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify({
-              success: true,
-              message: `Issue ${validatedArgs.issueKey} updated successfully`,
-            }, null, 2)
-          }]
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  success: true,
+                  message: `Issue ${validatedArgs.issueKey} updated successfully`,
+                },
+                null,
+                2
+              ),
+            },
+          ],
         };
       } catch (error) {
         // Audit failure
-        auditLogger.logFailure('update_issue', 'issue', error instanceof Error ? error.message : 'Unknown error', { issueKey: args.issueKey });
-        
+        auditLogger.logFailure(
+          'update_issue',
+          'issue',
+          error instanceof Error ? error.message : 'Unknown error',
+          { issueKey: args.issueKey }
+        );
+
         if (error instanceof FieldValidationError) {
           throw new Error(`Field validation failed: ${error.message}`);
         }
