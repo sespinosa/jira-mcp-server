@@ -1,6 +1,3 @@
-#\!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
 echo "🔍 Running pre-commit checks..."
 
 # Run TypeScript build check
@@ -19,5 +16,4 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "✅ All pre-commit checks passed\!"
-EOF < /dev/null
+echo "✅ All pre-commit checks passed!"
