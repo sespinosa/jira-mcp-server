@@ -5,48 +5,56 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2025-07-07
+
+### 🔧 Fixed
+- **BREAKING:** Complete rewrite to fix MCP SDK compatibility issues
+- Fixed server failing to start due to incorrect MCP SDK usage patterns
+- Removed invalid `telemetry` field from jira.js client configuration
+- Fixed TypeScript compilation errors
+- Updated to use correct `ListToolsRequestSchema` and `CallToolRequestSchema` patterns
+
+### 🎯 Changed
+- **BREAKING:** Simplified tool set to 5 core tools for stability
+- **BREAKING:** Updated tool names to use `jira_` prefix for consistency
+- **BREAKING:** Removed complex features that were causing stability issues
+- Updated to Modern MCP SDK patterns following current best practices
+- Improved error handling with proper MCP error types
+
+### ✨ Current Tools (Working & Tested)
+- `jira_create_issue` - Create new issues with basic fields
+- `jira_get_issue` - Get detailed issue information
+- `jira_update_issue` - Update issue summary and description
+- `jira_search_issues` - Search issues using JQL queries
+- `jira_list_projects` - List all accessible projects
+
+### 🛠️ Technical Details
+- Built on latest Model Context Protocol (MCP) SDK
+- Uses jira.js v3 for Jira REST API integration
+- TypeScript with ES modules compilation
+- Simplified architecture for better maintainability
+- Comprehensive error handling and validation
+
+### 📚 Documentation
+- Updated README to reflect actual working features
+- Added troubleshooting section
+- Simplified setup instructions
+- Updated Claude Desktop configuration examples
+
 ## [0.0.1] - 2025-07-07
 
 ### Added
-- 🎉 First public release of Jira MCP Server (untested in production)
-- **Core Tools (Production Tested):**
-  - `get_issue` - Retrieve comprehensive issue details with metadata, comments, attachments
-  - `search_issues` - Search issues using JQL with pagination (tested with 55+ tickets)
-  - `list_projects` - List all accessible projects (tested with 31 projects)
-  - `get_current_user` - Get authenticated user information  
-  - `get_issue_comments` - Retrieve issue comments with pagination
+- 🎉 Initial release (had compatibility issues, see v2.0.0)
+- Basic Jira integration attempt
+- Complex tool set (many tools had issues)
+- TypeScript implementation
+- MCP SDK integration (incorrect patterns)
 
-- **Security Features:**
-  - Input validation with Zod schemas
-  - JQL query length limits (1000 characters)
-  - Secure API token authentication
-  - Environment variable credential management
+### Issues in 0.0.1 (Fixed in 2.0.0)
+- Server failed to start due to MCP SDK incompatibility
+- TypeScript compilation errors
+- Invalid jira.js configuration
+- Overly complex tool registration patterns
 
-- **Developer Experience:**
-  - TypeScript support with full type safety
-  - Environment-based configuration
-  - Comprehensive error handling
-  - Development mode with hot reload
-  - ESLint and Prettier configuration
-
-- **Documentation:**
-  - Complete setup and usage guide
-  - JQL query examples
-  - Claude Desktop integration instructions
-  - Security best practices
-  - Contributing guidelines
-
-### Technical Details
-- Built on Model Context Protocol (MCP) SDK
-- Uses jira.js for Jira REST API v3 integration
-- ES modules with TypeScript compilation
-- Node.js 18+ requirement
-- MIT license for open source use
-
-### Supported Operations
-- **Read Operations:** Issues, projects, users, comments, search
-- **Metadata Access:** Attachments, custom fields, change history, time tracking
-- **Authentication:** Basic auth with API tokens
-- **Pagination:** Full pagination support for large datasets
-
-[0.0.1]: https://github.com/sespinosar/jira-mcp-server/releases/tag/v0.0.1
+[2.0.0]: https://github.com/sespinosa/jira-mcp-server/releases/tag/v2.0.0
+[0.0.1]: https://github.com/sespinosa/jira-mcp-server/releases/tag/v0.0.1

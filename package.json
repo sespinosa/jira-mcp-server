@@ -1,6 +1,6 @@
 {
   "name": "jira-mcp-server",
-  "version": "0.0.1",
+  "version": "2.0.0",
   "description": "Jira MCP server for AI assistant integration with comprehensive security features",
   "main": "build/index.js",
   "type": "module",
