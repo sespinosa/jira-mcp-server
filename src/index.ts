@@ -54,12 +54,12 @@ class JiraMCPServer {
       process.exit(1);
     });
     
-    process.on('SIGINT', () => {
+    process.on('SIGINT', async () => {
       void this.server.close();
       process.exit(0);
     });
 
-    process.on('SIGTERM', () => {
+    process.on('SIGTERM', async () => {
       void this.server.close();
       process.exit(0);
     });
@@ -84,7 +84,7 @@ class JiraMCPServer {
         try {
           // Rate limiting and audit logging
           await withRateLimit(
-            () => {
+            async () => {
               auditLogger.logOperation('get_issue', 'issue', { issueKey: args.issueKey });
               return true;
             },
@@ -221,7 +221,7 @@ class JiraMCPServer {
         try {
           // Rate limiting and audit logging
           await withRateLimit(
-            () => {
+            async () => {
               auditLogger.logOperation('search_issues', 'search', { jql: args.jql, maxResults: args.maxResults });
               return true;
             },
@@ -293,7 +293,7 @@ class JiraMCPServer {
         try {
           // Rate limiting and audit logging
           await withRateLimit(
-            () => {
+            async () => {
               auditLogger.logOperation('list_projects', 'project', { maxResults: args.maxResults });
               return true;
             },
@@ -344,7 +344,7 @@ class JiraMCPServer {
         try {
           // Rate limiting and audit logging
           await withRateLimit(
-            () => {
+            async () => {
               auditLogger.logOperation('get_current_user', 'user', {});
               return true;
             },
@@ -387,7 +387,7 @@ class JiraMCPServer {
         try {
           // Rate limiting and audit logging
           await withRateLimit(
-            () => {
+            async () => {
               auditLogger.logOperation('get_issue_comments', 'comment', { issueKey: args.issueKey, maxResults: args.maxResults });
               return true;
             },
