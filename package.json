@@ -53,12 +53,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sespinosar/jira-mcp-server.git"
+    "url": "git+https://github.com/sespinosa/jira-mcp-server.git"
   },
   "bugs": {
-    "url": "https://github.com/sespinosar/jira-mcp-server/issues"
+    "url": "https://github.com/sespinosa/jira-mcp-server/issues"
   },
-  "homepage": "https://github.com/sespinosar/jira-mcp-server#readme",
+  "homepage": "https://github.com/sespinosa/jira-mcp-server#readme",
   "lint-staged": {
     "src/**/*.{ts,tsx}": [
       "eslint --fix",

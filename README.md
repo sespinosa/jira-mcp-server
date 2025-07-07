@@ -25,14 +25,14 @@ A comprehensive Model Context Protocol (MCP) server for Jira integration, design
 ### 🔧 **Developer Experience**
 - **TypeScript**: Full type safety and IntelliSense support
 - **Hot Reload**: Development mode with automatic restarts
-- **Comprehensive Testing**: Successfully tested with real Jira instance (55+ tickets)
+- **Pre-commit Hooks**: Automated code quality checks with TypeScript, ESLint, and Prettier
 - **Detailed Documentation**: Complete examples and usage guides for all 23+ tools
 
 ## 📦 Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/sespinosar/jira-mcp-server.git
+git clone https://github.com/sespinosa/jira-mcp-server.git
 cd jira-mcp-server
 
 # Install dependencies
@@ -141,12 +141,12 @@ npm test
 
 ## 👩‍💻 Development
 
-This project includes pre-commit hooks to ensure code quality and prevent CI failures. All commits are automatically validated for TypeScript compilation, ESLint compliance, and Prettier formatting.
+This project includes pre-commit hooks to ensure code quality and prevent CI failures. All commits are automatically checked for TypeScript compilation, ESLint compliance, and Prettier formatting.
 
 ### Pre-commit Hooks
 When you commit, the following checks automatically run:
 - **TypeScript compilation** - Ensures no build errors
-- **ESLint** - Fixes and validates code style
+- **ESLint** - Fixes and checks code style
 - **Prettier** - Formats code consistently
 
 ```bash
@@ -192,7 +192,7 @@ Add this to your Claude Desktop MCP configuration:
 
 ## 🛠️ Available Tools (23 Total)
 
-All tools have been tested and verified working with production Jira instances. This server provides **full read/write capabilities** across all Jira operations:
+This server provides **full read/write capabilities** across all Jira operations:
 
 ### 📋 Issue Management (7 tools)
 - **`get_issue`** - Get comprehensive issue details including metadata, comments, attachments, custom fields, change history
@@ -236,10 +236,10 @@ All tools have been tested and verified working with production Jira instances. 
 
 ### ✅ **Production Verified**
 - Successfully connected to production Jira instances
-- Retrieved 55+ tickets across multiple projects
-- Tested all CRUD operations with real data
-- Validated security features and rate limiting
-- Confirmed audit logging and error handling
+- Comprehensive ticket retrieval and management capabilities
+- CRUD operations for all Jira entities
+- Security features and rate limiting
+- Audit logging and error handling
 
 ## 🛡️ Advanced Security Features
 
@@ -629,7 +629,7 @@ node test-example.js
 ## 📧 Support
 
 For issues and questions:
-- Create an issue on [GitHub](https://github.com/sespinosar/jira-mcp-server/issues)
+- Create an issue on [GitHub](https://github.com/sespinosa/jira-mcp-server/issues)
 - Check existing issues for solutions
 
 ## 🏆 Acknowledgments
