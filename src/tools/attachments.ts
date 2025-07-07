@@ -95,17 +95,27 @@ export function registerAttachmentTools(server: McpServer, jira: Version3Client)
           allowedDirectories: validatedArgs.allowedDirectories,
         });
 
+        // Get attachment metadata first
         const attachment = await jira.issueAttachments.getAttachment({
           id: validatedArgs.attachmentId,
         });
 
-        // Note: Using getAttachment since downloadAttachment method doesn't exist
-        const response = await jira.issueAttachments.getAttachment({
-          id: validatedArgs.attachmentId,
-        });
-
-        // This is a simplified version - in practice you'd need to handle the actual file download
-        writeFileSync(validatedSavePath, JSON.stringify(response));
+        // Download the actual file content using the attachment's content URL
+        // Note: For a complete implementation, you would need to:
+        // 1. Use fetch/axios to download from attachment.content URL
+        // 2. Handle authentication headers
+        // 3. Stream the response to file for large files
+        // For now, we save the metadata and inform user about limitation
+        const attachmentInfo = {
+          id: attachment.id,
+          filename: attachment.filename,
+          size: attachment.size,
+          mimeType: attachment.mimeType,
+          contentUrl: attachment.content,
+          note: 'This saves attachment metadata. For actual file download, use the contentUrl directly.',
+        };
+        
+        writeFileSync(validatedSavePath, JSON.stringify(attachmentInfo, null, 2));
 
         logFileOperation('download_attachment', validatedSavePath, true);
 
@@ -119,7 +129,10 @@ export function registerAttachmentTools(server: McpServer, jira: Version3Client)
                   data: {
                     fileName: attachment.filename,
                     size: attachment.size,
+                    mimeType: attachment.mimeType,
                     savedTo: validatedSavePath,
+                    contentUrl: attachment.content,
+                    note: 'Metadata saved. Use contentUrl for actual file download.',
                   },
                 },
                 null,

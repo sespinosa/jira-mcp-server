@@ -395,19 +395,3 @@ export class PermissionValidator {
   }
 }
 
-export function createPermissionWrapper(jira: Version3Client) {
-  const validator = new PermissionValidator(jira);
-
-  return {
-    validator,
-
-    async withPermissionCheck<T>(
-      operation: string,
-      context: { projectKey?: string; issueKey?: string } = {},
-      action: () => Promise<T>
-    ): Promise<T> {
-      await validator.checkOperationPermissions(operation, context);
-      return await action();
-    },
-  };
-}

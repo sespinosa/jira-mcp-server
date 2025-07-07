@@ -1,6 +1,39 @@
 import { resolve, normalize } from 'path';
 import { existsSync, statSync } from 'fs';
 
+// Centralized dangerous patterns used across the application
+export const DANGEROUS_SCRIPT_PATTERNS = [
+  /<script[^>]*>.*?<\/script>/gi,
+  /javascript:/gi,
+  /vbscript:/gi,
+  /onload=/gi,
+  /onerror=/gi,
+  /onclick=/gi,
+  /data:text\/html/gi,
+  /eval\s*\(/gi,
+  /Function\s*\(/gi,
+  /setTimeout\s*\(/gi,
+  /setInterval\s*\(/gi,
+];
+
+export const DANGEROUS_PATH_PATTERNS = [
+  '../',
+  '..\\',
+  '..%2F',
+  '..%5C',
+  '%2e%2e%2f',
+  '%2e%2e%5c',
+  '/./',
+  '/..',
+  '\\..',
+  '\\.\\',
+  'file://',
+  'http://',
+  'https://',
+  'ftp://',
+  'sftp://',
+];
+
 export interface FileValidationOptions {
   allowedExtensions?: string[];
   maxFileSize?: number; // in bytes
@@ -32,25 +65,7 @@ export function validateFilePath(filePath: string, options: FileValidationOption
 
   // Check for path traversal attempts
   if (blockDangerousPatterns) {
-    const dangerousPatterns = [
-      '../',
-      '..\\',
-      '..%2F',
-      '..%5C',
-      '%2e%2e%2f',
-      '%2e%2e%5c',
-      '/./',
-      '/..',
-      '\\..',
-      '\\.\\',
-      'file://',
-      'http://',
-      'https://',
-      'ftp://',
-      'sftp://',
-    ];
-
-    for (const pattern of dangerousPatterns) {
+    for (const pattern of DANGEROUS_PATH_PATTERNS) {
       if (normalizedPath.toLowerCase().includes(pattern.toLowerCase())) {
         throw new SecurityError(
           `Path contains dangerous pattern: ${pattern}`,
@@ -119,25 +134,7 @@ export function validateSavePath(savePath: string, options: FileValidationOption
 
   // Check for path traversal attempts
   if (blockDangerousPatterns) {
-    const dangerousPatterns = [
-      '../',
-      '..\\',
-      '..%2F',
-      '..%5C',
-      '%2e%2e%2f',
-      '%2e%2e%5c',
-      '/./',
-      '/..',
-      '\\..',
-      '\\.\\',
-      'file://',
-      'http://',
-      'https://',
-      'ftp://',
-      'sftp://',
-    ];
-
-    for (const pattern of dangerousPatterns) {
+    for (const pattern of DANGEROUS_PATH_PATTERNS) {
       if (normalizedPath.toLowerCase().includes(pattern.toLowerCase())) {
         throw new SecurityError(
           `Save path contains dangerous pattern: ${pattern}`,
@@ -175,24 +172,10 @@ export function validateSavePath(savePath: string, options: FileValidationOption
 }
 
 export function sanitizeJQL(jql: string): string {
-  // Remove potentially dangerous SQL-like patterns
-  const dangerousPatterns = [
-    /\b(DROP|DELETE|INSERT|UPDATE|CREATE|ALTER|TRUNCATE)\b/gi,
-    /\b(UNION|SELECT)\b.*\b(FROM|WHERE)\b/gi,
-    /['"]\s*;\s*['"]/gi, // SQL injection patterns
-    /\b(EXEC|EXECUTE|EVAL)\b/gi,
-    /\b(SCRIPT|JAVASCRIPT|VBSCRIPT)\b/gi,
-    /<script[^>]*>.*?<\/script>/gi,
-    /javascript:/gi,
-    /vbscript:/gi,
-    /onload=/gi,
-    /onerror=/gi,
-    /onclick=/gi,
-  ];
-
+  // Remove potentially dangerous script patterns from JQL
   const sanitizedJQL = jql;
 
-  for (const pattern of dangerousPatterns) {
+  for (const pattern of DANGEROUS_SCRIPT_PATTERNS) {
     if (pattern.test(sanitizedJQL)) {
       throw new SecurityError(
         `JQL contains potentially dangerous pattern: ${pattern}`,

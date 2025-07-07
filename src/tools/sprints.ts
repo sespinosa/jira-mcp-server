@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { Version3Client, AgileClient } from 'jira.js';
 import { z } from 'zod';
-import { sanitizeJQL, SecurityError } from '../utils/security.js';
+import { sanitizeJQL, SecurityError, DANGEROUS_SCRIPT_PATTERNS } from '../utils/security.js';
 import { rateLimiters, withRateLimit } from '../utils/rateLimiter.js';
 import { auditLogger, logJQLSearch } from '../utils/auditLogger.js';
 
@@ -248,15 +248,7 @@ export function registerSprintTools(
         const validatedArgs = args;
 
         // Validate sprint name and goal for dangerous content
-        const dangerousPatterns = [
-          /<script[^>]*>.*?<\/script>/gi,
-          /javascript:/gi,
-          /vbscript:/gi,
-          /onload=/gi,
-          /onerror=/gi,
-        ];
-
-        for (const pattern of dangerousPatterns) {
+        for (const pattern of DANGEROUS_SCRIPT_PATTERNS) {
           if (pattern.test(validatedArgs.name)) {
             throw new SecurityError(
               `Sprint name contains dangerous pattern: ${pattern}`,

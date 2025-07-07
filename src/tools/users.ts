@@ -3,7 +3,7 @@ import { Version3Client } from 'jira.js';
 import { z } from 'zod';
 import { rateLimiters, withRateLimit } from '../utils/rateLimiter.js';
 import { auditLogger } from '../utils/auditLogger.js';
-import { SecurityError } from '../utils/security.js';
+import { SecurityError, DANGEROUS_SCRIPT_PATTERNS } from '../utils/security.js';
 
 export function registerUserTools(server: McpServer, jiraClient: Version3Client) {
   // Get User
@@ -150,15 +150,7 @@ export function registerUserTools(server: McpServer, jiraClient: Version3Client)
         }
 
         // Basic sanitization for search query - prevent dangerous patterns
-        const dangerousPatterns = [
-          /<script[^>]*>.*?<\/script>/gi,
-          /javascript:/gi,
-          /vbscript:/gi,
-          /onload=/gi,
-          /onerror=/gi,
-        ];
-
-        for (const pattern of dangerousPatterns) {
+        for (const pattern of DANGEROUS_SCRIPT_PATTERNS) {
           if (pattern.test(validatedArgs.query)) {
             throw new SecurityError(
               `Search query contains dangerous pattern: ${pattern}`,
@@ -238,15 +230,7 @@ export function registerUserTools(server: McpServer, jiraClient: Version3Client)
 
         // Basic sanitization for search query if provided
         if (validatedArgs.query) {
-          const dangerousPatterns = [
-            /<script[^>]*>.*?<\/script>/gi,
-            /javascript:/gi,
-            /vbscript:/gi,
-            /onload=/gi,
-            /onerror=/gi,
-          ];
-
-          for (const pattern of dangerousPatterns) {
+          for (const pattern of DANGEROUS_SCRIPT_PATTERNS) {
             if (pattern.test(validatedArgs.query)) {
               throw new SecurityError(
                 `Search query contains dangerous pattern: ${pattern}`,

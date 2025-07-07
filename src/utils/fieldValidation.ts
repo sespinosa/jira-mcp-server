@@ -1,10 +1,10 @@
 import { z } from 'zod';
+import { DANGEROUS_SCRIPT_PATTERNS } from './security.js';
 
 export interface FieldValidationOptions {
   allowedFields?: string[];
   maxStringLength?: number;
   maxArrayLength?: number;
-  allowedCustomFieldTypes?: string[];
   blockDangerousValues?: boolean;
 }
 
@@ -108,21 +108,7 @@ const jiraFieldSchemas = {
 export function validateCustomField(value: any, fieldType?: string): any {
   // Block potentially dangerous values
   if (typeof value === 'string') {
-    const dangerousPatterns = [
-      /<script[^>]*>.*?<\/script>/gi,
-      /javascript:/gi,
-      /vbscript:/gi,
-      /onload=/gi,
-      /onerror=/gi,
-      /onclick=/gi,
-      /data:text\/html/gi,
-      /eval\s*\(/gi,
-      /Function\s*\(/gi,
-      /setTimeout\s*\(/gi,
-      /setInterval\s*\(/gi,
-    ];
-
-    for (const pattern of dangerousPatterns) {
+    for (const pattern of DANGEROUS_SCRIPT_PATTERNS) {
       if (pattern.test(value)) {
         throw new FieldValidationError(
           `Custom field value contains dangerous pattern: ${pattern}`,
@@ -178,16 +164,6 @@ export function validateIssueFields(
     allowedFields = [],
     maxStringLength = 32767,
     maxArrayLength = 50,
-    _allowedCustomFieldTypes = [
-      'string',
-      'text',
-      'number',
-      'boolean',
-      'date',
-      'datetime',
-      'array',
-      'object',
-    ],
     blockDangerousValues = true,
   } = options;
 
@@ -218,17 +194,7 @@ export function validateIssueFields(
 
       // For unknown fields, apply basic validation
       if (blockDangerousValues && typeof fieldValue === 'string') {
-        const dangerousPatterns = [
-          /<script[^>]*>.*?<\/script>/gi,
-          /javascript:/gi,
-          /vbscript:/gi,
-          /onload=/gi,
-          /onerror=/gi,
-          /onclick=/gi,
-          /data:text\/html/gi,
-        ];
-
-        for (const pattern of dangerousPatterns) {
+        for (const pattern of DANGEROUS_SCRIPT_PATTERNS) {
           if (pattern.test(fieldValue)) {
             throw new FieldValidationError(
               `Field value contains dangerous pattern: ${pattern}`,

@@ -297,8 +297,3 @@ export class ConfigurationManager {
 export const securityConfig = new ConfigurationManager();
 
 // Convenience functions
-export const isOperationAllowed = (operation: string) =>
-  securityConfig.isOperationAllowed(operation);
-export const needsConfirmation = (operation: string) => securityConfig.needsConfirmation(operation);
-export const validateOperation = (operation: string, context?: any) =>
-  securityConfig.validateOperation(operation, context);
