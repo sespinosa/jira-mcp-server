@@ -37,10 +37,6 @@ jobs:
     
     - name: Run tests
       run: npm test
-      env:
-        JIRA_HOST: ${{ secrets.JIRA_HOST }}
-        JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
-        JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
 
   security:
     runs-on: ubuntu-latest
