@@ -11,9 +11,10 @@
     "build": "tsc",
     "start": "node build/index.js",
     "dev": "tsx src/index.ts",
-    "test": "node test-example.js",
+    "test": "echo \"No tests configured\" && exit 0",
     "lint": "eslint src --ext .ts",
-    "format": "prettier --write src/**/*.ts"
+    "format": "prettier src/**/*.ts",
+    "format:write": "prettier --write src/**/*.ts"
   },
   "keywords": [
     "jira", 

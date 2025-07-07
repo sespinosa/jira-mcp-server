@@ -2,7 +2,6 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { Version3Client } from 'jira.js';
 import { z } from 'zod';
 import { createReadStream, writeFileSync } from 'fs';
-import { formatResponse, handleError } from '../utils/formatter.js';
 import { validateFilePath, validateSavePath, validateDestructiveOperation, SecurityError } from '../utils/security.js';
 import { logFileOperation, logDestructiveOperation } from '../utils/auditLogger.js';
 
@@ -129,26 +128,22 @@ export function registerAttachmentTools(server: McpServer, jira: Version3Client)
       },
     },
     async (args) => {
-      try {
-        // Args are automatically validated by MCP SDK
-        const validatedArgs = args;
-        const issue = await jira.issues.getIssue({
-          issueIdOrKey: validatedArgs.issueKey,
-          fields: ['attachment'],
-        });
+      // Args are automatically validated by MCP SDK
+      const validatedArgs = args;
+      const issue = await jira.issues.getIssue({
+        issueIdOrKey: validatedArgs.issueKey,
+        fields: ['attachment'],
+      });
 
-        return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify({
-              success: true,
-              data: issue.fields.attachment || [],
-            }, null, 2)
-          }]
-        };
-      } catch (error) {
-        throw error;
-      }
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify({
+            success: true,
+            data: issue.fields.attachment || [],
+          }, null, 2)
+        }]
+      };
     }
   );
 
@@ -208,26 +203,22 @@ export function registerAttachmentTools(server: McpServer, jira: Version3Client)
       },
     },
     async (args) => {
-      try {
-        // Args are automatically validated by MCP SDK
-        const validatedArgs = args;
+      // Args are automatically validated by MCP SDK
+      const validatedArgs = args;
 
-        const attachment = await jira.issueAttachments.getAttachment({
-          id: validatedArgs.attachmentId,
-        });
+      const attachment = await jira.issueAttachments.getAttachment({
+        id: validatedArgs.attachmentId,
+      });
 
-        return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify({
-              success: true,
-              data: attachment,
-            }, null, 2)
-          }]
-        };
-      } catch (error) {
-        throw error;
-      }
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify({
+            success: true,
+            data: attachment,
+          }, null, 2)
+        }]
+      };
     }
   );
 }

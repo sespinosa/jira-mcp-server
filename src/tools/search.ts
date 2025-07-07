@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { Version3Client } from 'jira.js';
 import { z } from 'zod';
-import { sanitizeJQL, SecurityError } from '../utils/security.js';
+import { SecurityError } from '../utils/security.js';
 import { rateLimiters, withRateLimit } from '../utils/rateLimiter.js';
 import { auditLogger } from '../utils/auditLogger.js';
 

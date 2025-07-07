@@ -1,7 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { Version3Client, AgileClient } from 'jira.js';
 import { z } from 'zod';
-import { formatResponse, handleError } from '../utils/formatter.js';
 
 export function registerBoardTools(server: McpServer, jira: Version3Client, jiraHost: string, jiraAuth: any) {
   // Create AgileClient with separate configuration
@@ -46,6 +45,7 @@ export function registerBoardTools(server: McpServer, jira: Version3Client, jira
           }]
         };
       } catch (error) {
+        // Let MCP handle the error
         throw error;
       }
     }
@@ -79,6 +79,7 @@ export function registerBoardTools(server: McpServer, jira: Version3Client, jira
           }]
         };
       } catch (error) {
+        // Let MCP handle the error
         throw error;
       }
     }
@@ -112,6 +113,7 @@ export function registerBoardTools(server: McpServer, jira: Version3Client, jira
           }]
         };
       } catch (error) {
+        // Let MCP handle the error
         throw error;
       }
     }
@@ -151,6 +153,7 @@ export function registerBoardTools(server: McpServer, jira: Version3Client, jira
           }]
         };
       } catch (error) {
+        // Let MCP handle the error
         throw error;
       }
     }

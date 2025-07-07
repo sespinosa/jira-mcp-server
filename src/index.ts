@@ -6,11 +6,9 @@ import { z } from 'zod';
 import dotenv from 'dotenv';
 
 import { envSchema, getJiraAuthentication, getJiraHost } from './utils/auth.js';
-import { formatResponse, handleError } from './utils/formatter.js';
 import { sanitizeJQL, SecurityError } from './utils/security.js';
 import { rateLimiters, withRateLimit } from './utils/rateLimiter.js';
 import { auditLogger, logJQLSearch } from './utils/auditLogger.js';
-import { validateIssueFields } from './utils/fieldValidation.js';
 import { registerAttachmentTools } from './tools/attachments.js';
 import { registerBoardTools } from './tools/boards.js';
 import { registerIssueTools } from './tools/issues.js';
@@ -56,13 +54,13 @@ class JiraMCPServer {
       process.exit(1);
     });
     
-    process.on('SIGINT', async () => {
-      await this.server.close();
+    process.on('SIGINT', () => {
+      void this.server.close();
       process.exit(0);
     });
 
-    process.on('SIGTERM', async () => {
-      await this.server.close();
+    process.on('SIGTERM', () => {
+      void this.server.close();
       process.exit(0);
     });
   }
@@ -86,7 +84,7 @@ class JiraMCPServer {
         try {
           // Rate limiting and audit logging
           await withRateLimit(
-            async () => {
+            () => {
               auditLogger.logOperation('get_issue', 'issue', { issueKey: args.issueKey });
               return true;
             },
@@ -223,7 +221,7 @@ class JiraMCPServer {
         try {
           // Rate limiting and audit logging
           await withRateLimit(
-            async () => {
+            () => {
               auditLogger.logOperation('search_issues', 'search', { jql: args.jql, maxResults: args.maxResults });
               return true;
             },
@@ -295,7 +293,7 @@ class JiraMCPServer {
         try {
           // Rate limiting and audit logging
           await withRateLimit(
-            async () => {
+            () => {
               auditLogger.logOperation('list_projects', 'project', { maxResults: args.maxResults });
               return true;
             },
@@ -346,7 +344,7 @@ class JiraMCPServer {
         try {
           // Rate limiting and audit logging
           await withRateLimit(
-            async () => {
+            () => {
               auditLogger.logOperation('get_current_user', 'user', {});
               return true;
             },
@@ -389,7 +387,7 @@ class JiraMCPServer {
         try {
           // Rate limiting and audit logging
           await withRateLimit(
-            async () => {
+            () => {
               auditLogger.logOperation('get_issue_comments', 'comment', { issueKey: args.issueKey, maxResults: args.maxResults });
               return true;
             },

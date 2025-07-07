@@ -166,7 +166,7 @@ export class AuditLogger {
     }
   }
 
-  private logToFile(entry: AuditLogEntry): void {
+  private logToFile(_entry: AuditLogEntry): void {
     // In a real implementation, this would write to a file
     // For now, we'll just store it in memory
     // You could implement this with fs.appendFileSync or a logging library
@@ -228,9 +228,6 @@ export class AuditLogger {
       
       // Step 2: If still too many entries, remove oldest ones in batches
       if (this.logs.length > this.options.maxLogEntries) {
-        const excessEntries = this.logs.length - this.options.maxLogEntries;
-        const batchSize = Math.min(excessEntries, this.options.batchCleanupSize);
-        
         // Keep the most recent entries
         this.logs = this.logs.slice(-this.options.maxLogEntries);
       }

@@ -1,4 +1,4 @@
-import { resolve, normalize, isAbsolute } from 'path';
+import { resolve, normalize } from 'path';
 import { existsSync, statSync } from 'fs';
 
 export interface FileValidationOptions {
@@ -182,7 +182,7 @@ export function sanitizeJQL(jql: string): string {
     /onclick=/gi
   ];
 
-  let sanitizedJQL = jql;
+  const sanitizedJQL = jql;
   
   for (const pattern of dangerousPatterns) {
     if (pattern.test(sanitizedJQL)) {
@@ -202,17 +202,7 @@ export function sanitizeJQL(jql: string): string {
   }
 
   // Basic JQL syntax validation
-  const jqlKeywords = [
-    'AND', 'OR', 'NOT', 'ORDER BY', 'GROUP BY',
-    'project', 'issueType', 'status', 'priority', 'assignee',
-    'reporter', 'created', 'updated', 'resolved', 'fixVersion',
-    'affectedVersion', 'component', 'labels', 'summary', 'description',
-    'comment', 'worklogAuthor', 'worklogDate', 'timeSpent',
-    'originalEstimate', 'remainingEstimate', 'timespent',
-    'currentUser()', 'now()', 'startOfDay()', 'endOfDay()',
-    'startOfWeek()', 'endOfWeek()', 'startOfMonth()', 'endOfMonth()',
-    'startOfYear()', 'endOfYear()'
-  ];
+  // Removed unused jqlKeywords - JQL validation is handled by Jira API
 
   // This is a basic validation - Jira's API will do more comprehensive validation
   return sanitizedJQL.trim();
