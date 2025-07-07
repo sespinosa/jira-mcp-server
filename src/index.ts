@@ -53,7 +53,7 @@ class JiraMCPServer {
       console.error('Uncaught Exception:', error);
       process.exit(1);
     });
-    
+
     process.on('SIGINT', async () => {
       void this.server.close();
       process.exit(0);
@@ -71,7 +71,8 @@ class JiraMCPServer {
       'get_issue',
       {
         title: 'Get Issue Details',
-        description: 'Get comprehensive issue details including comments, attachments, and all metadata',
+        description:
+          'Get comprehensive issue details including comments, attachments, and all metadata',
         inputSchema: {
           issueKey: z.string().describe('Issue key (e.g., PROJ-123)'),
           includeComments: z.boolean().default(true).describe('Include issue comments'),
@@ -91,7 +92,7 @@ class JiraMCPServer {
             rateLimiters.standard,
             'get_issue'
           );
-          
+
           // Validate args with Zod
           const getIssueSchema = z.object({
             issueKey: z.string(),
@@ -102,9 +103,16 @@ class JiraMCPServer {
           });
           const validatedArgs = getIssueSchema.parse(args);
           // Build expand fields based on what's requested
-          const expandFields = ['renderedFields', 'names', 'schema', 'transitions', 'operations', 'editmeta'];
+          const expandFields = [
+            'renderedFields',
+            'names',
+            'schema',
+            'transitions',
+            'operations',
+            'editmeta',
+          ];
           if (validatedArgs.includeHistory) expandFields.push('changelog');
-          
+
           // Get issue with expanded fields
           const issue = await this.jiraClient.issues.getIssue({
             issueIdOrKey: validatedArgs.issueKey,
@@ -162,7 +170,7 @@ class JiraMCPServer {
               timeEstimate: issue.fields.timeestimate,
               aggregateTimeSpent: issue.fields.aggregatetimespent,
               aggregateTimeOriginalEstimate: issue.fields.aggregatetimeoriginalestimate,
-              attachments: issue.fields.attachment?.map(att => ({
+              attachments: issue.fields.attachment?.map((att) => ({
                 id: att.id,
                 filename: att.filename,
                 size: att.size,
@@ -186,15 +194,22 @@ class JiraMCPServer {
           };
 
           return {
-            content: [{
-              type: 'text',
-              text: JSON.stringify(response, null, 2)
-            }]
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(response, null, 2),
+              },
+            ],
           };
         } catch (error) {
           // Audit failure
-          auditLogger.logFailure('get_issue', 'issue', error instanceof Error ? error.message : 'Unknown error', { issueKey: args.issueKey });
-          
+          auditLogger.logFailure(
+            'get_issue',
+            'issue',
+            error instanceof Error ? error.message : 'Unknown error',
+            { issueKey: args.issueKey }
+          );
+
           if (error instanceof SecurityError) {
             throw new Error(`Security violation: ${error.message}`);
           }
@@ -222,13 +237,16 @@ class JiraMCPServer {
           // Rate limiting and audit logging
           await withRateLimit(
             async () => {
-              auditLogger.logOperation('search_issues', 'search', { jql: args.jql, maxResults: args.maxResults });
+              auditLogger.logOperation('search_issues', 'search', {
+                jql: args.jql,
+                maxResults: args.maxResults,
+              });
               return true;
             },
             rateLimiters.search,
             'search_issues'
           );
-          
+
           // Validate args with Zod
           const searchIssuesSchema = z.object({
             jql: z.string(),
@@ -238,7 +256,7 @@ class JiraMCPServer {
             expand: z.array(z.string()).optional(),
           });
           const validatedArgs = searchIssuesSchema.parse(args);
-          
+
           // JQL sanitization
           const sanitizedJQL = sanitizeJQL(validatedArgs.jql);
 
@@ -249,26 +267,42 @@ class JiraMCPServer {
             fields: validatedArgs.fields,
             expand: validatedArgs.expand?.join(','),
           });
-          
+
           // Log successful search
           logJQLSearch(sanitizedJQL, results.total || 0, true);
 
           return {
-            content: [{
-              type: 'text',
-              text: JSON.stringify({
-                total: results.total,
-                startAt: results.startAt,
-                maxResults: results.maxResults,
-                issues: results.issues,
-              }, null, 2)
-            }]
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(
+                  {
+                    total: results.total,
+                    startAt: results.startAt,
+                    maxResults: results.maxResults,
+                    issues: results.issues,
+                  },
+                  null,
+                  2
+                ),
+              },
+            ],
           };
         } catch (error) {
           // Audit failure
-          auditLogger.logFailure('search_issues', 'search', error instanceof Error ? error.message : 'Unknown error', { jql: args.jql });
-          logJQLSearch(args.jql, 0, false, error instanceof Error ? error.message : 'Unknown error');
-          
+          auditLogger.logFailure(
+            'search_issues',
+            'search',
+            error instanceof Error ? error.message : 'Unknown error',
+            { jql: args.jql }
+          );
+          logJQLSearch(
+            args.jql,
+            0,
+            false,
+            error instanceof Error ? error.message : 'Unknown error'
+          );
+
           if (error instanceof SecurityError) {
             throw new Error(`Security violation: ${error.message}`);
           }
@@ -300,7 +334,7 @@ class JiraMCPServer {
             rateLimiters.standard,
             'list_projects'
           );
-          
+
           // Validate args with Zod
           const listProjectsSchema = z.object({
             startAt: z.number().default(0),
@@ -315,15 +349,21 @@ class JiraMCPServer {
           });
 
           return {
-            content: [{
-              type: 'text',
-              text: JSON.stringify(projects.values || projects, null, 2)
-            }]
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(projects.values || projects, null, 2),
+              },
+            ],
           };
         } catch (error) {
           // Audit failure
-          auditLogger.logFailure('list_projects', 'project', error instanceof Error ? error.message : 'Unknown error');
-          
+          auditLogger.logFailure(
+            'list_projects',
+            'project',
+            error instanceof Error ? error.message : 'Unknown error'
+          );
+
           if (error instanceof SecurityError) {
             throw new Error(`Security violation: ${error.message}`);
           }
@@ -351,18 +391,24 @@ class JiraMCPServer {
             rateLimiters.standard,
             'get_current_user'
           );
-          
+
           const user = await this.jiraClient.myself.getCurrentUser();
           return {
-            content: [{
-              type: 'text',
-              text: JSON.stringify(user, null, 2)
-            }]
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(user, null, 2),
+              },
+            ],
           };
         } catch (error) {
           // Audit failure
-          auditLogger.logFailure('get_current_user', 'user', error instanceof Error ? error.message : 'Unknown error');
-          
+          auditLogger.logFailure(
+            'get_current_user',
+            'user',
+            error instanceof Error ? error.message : 'Unknown error'
+          );
+
           if (error instanceof SecurityError) {
             throw new Error(`Security violation: ${error.message}`);
           }
@@ -388,13 +434,16 @@ class JiraMCPServer {
           // Rate limiting and audit logging
           await withRateLimit(
             async () => {
-              auditLogger.logOperation('get_issue_comments', 'comment', { issueKey: args.issueKey, maxResults: args.maxResults });
+              auditLogger.logOperation('get_issue_comments', 'comment', {
+                issueKey: args.issueKey,
+                maxResults: args.maxResults,
+              });
               return true;
             },
             rateLimiters.standard,
             'get_issue_comments'
           );
-          
+
           // Validate args with Zod
           const getCommentsSchema = z.object({
             issueKey: z.string(),
@@ -410,15 +459,22 @@ class JiraMCPServer {
           });
 
           return {
-            content: [{
-              type: 'text',
-              text: JSON.stringify(comments, null, 2)
-            }]
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(comments, null, 2),
+              },
+            ],
           };
         } catch (error) {
           // Audit failure
-          auditLogger.logFailure('get_issue_comments', 'comment', error instanceof Error ? error.message : 'Unknown error', { issueKey: args.issueKey });
-          
+          auditLogger.logFailure(
+            'get_issue_comments',
+            'comment',
+            error instanceof Error ? error.message : 'Unknown error',
+            { issueKey: args.issueKey }
+          );
+
           if (error instanceof SecurityError) {
             throw new Error(`Security violation: ${error.message}`);
           }
@@ -429,18 +485,28 @@ class JiraMCPServer {
 
     // Register additional tools
     registerAttachmentTools(this.server, this.jiraClient);
-    registerBoardTools(this.server, this.jiraClient, getJiraHost(this.env), getJiraAuthentication(this.env));
+    registerBoardTools(
+      this.server,
+      this.jiraClient,
+      getJiraHost(this.env),
+      getJiraAuthentication(this.env)
+    );
     registerIssueTools(this.server, this.jiraClient);
     registerProjectTools(this.server, this.jiraClient);
     registerSearchTools(this.server, this.jiraClient);
     registerUserTools(this.server, this.jiraClient);
-    registerSprintTools(this.server, this.jiraClient, getJiraHost(this.env), getJiraAuthentication(this.env));
+    registerSprintTools(
+      this.server,
+      this.jiraClient,
+      getJiraHost(this.env),
+      getJiraAuthentication(this.env)
+    );
   }
 
   async run() {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.error('Jira MCP server running on stdio');
+    console.error('Jira MCP server running on stdio - ready for connections');
   }
 }
 
