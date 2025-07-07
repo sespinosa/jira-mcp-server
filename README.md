@@ -141,7 +141,7 @@ npm test
 
 ## 👩‍💻 Development
 
-This project includes pre-commit hooks to ensure code quality and prevent CI failures.
+This project includes pre-commit hooks to ensure code quality and prevent CI failures. All commits are automatically validated for TypeScript compilation, ESLint compliance, and Prettier formatting.
 
 ### Pre-commit Hooks
 When you commit, the following checks automatically run:
