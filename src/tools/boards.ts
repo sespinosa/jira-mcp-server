@@ -24,30 +24,25 @@ export function registerBoardTools(server: McpServer, jira: Version3Client, jira
       },
     },
     async (args) => {
-      try {
-        // Args are automatically validated by MCP SDK
-        const validatedArgs = args;
-        const boards = await agile.board.getAllBoards({
-          startAt: validatedArgs.startAt,
-          maxResults: validatedArgs.maxResults,
-          type: validatedArgs.type,
-          name: validatedArgs.name,
-          projectKeyOrId: validatedArgs.projectKeyOrId,
-        });
+      // Args are automatically validated by MCP SDK
+      const validatedArgs = args;
+      const boards = await agile.board.getAllBoards({
+        startAt: validatedArgs.startAt,
+        maxResults: validatedArgs.maxResults,
+        type: validatedArgs.type,
+        name: validatedArgs.name,
+        projectKeyOrId: validatedArgs.projectKeyOrId,
+      });
 
-        return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify({
-              success: true,
-              data: boards,
-            }, null, 2)
-          }]
-        };
-      } catch (error) {
-        // Let MCP handle the error
-        throw error;
-      }
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify({
+            success: true,
+            data: boards,
+          }, null, 2)
+        }]
+      };
     }
   );
 
@@ -62,26 +57,21 @@ export function registerBoardTools(server: McpServer, jira: Version3Client, jira
       },
     },
     async (args) => {
-      try {
-        // Args are automatically validated by MCP SDK
-        const validatedArgs = args;
-        const board = await agile.board.getBoard({
-          boardId: validatedArgs.boardId,
-        });
+      // Args are automatically validated by MCP SDK
+      const validatedArgs = args;
+      const board = await agile.board.getBoard({
+        boardId: validatedArgs.boardId,
+      });
 
-        return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify({
-              success: true,
-              data: board,
-            }, null, 2)
-          }]
-        };
-      } catch (error) {
-        // Let MCP handle the error
-        throw error;
-      }
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify({
+            success: true,
+            data: board,
+          }, null, 2)
+        }]
+      };
     }
   );
 
@@ -96,26 +86,21 @@ export function registerBoardTools(server: McpServer, jira: Version3Client, jira
       },
     },
     async (args) => {
-      try {
-        // Args are automatically validated by MCP SDK
-        const validatedArgs = args;
-        const config = await agile.board.getConfiguration({
-          boardId: validatedArgs.boardId,
-        });
+      // Args are automatically validated by MCP SDK
+      const validatedArgs = args;
+      const config = await agile.board.getConfiguration({
+        boardId: validatedArgs.boardId,
+      });
 
-        return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify({
-              success: true,
-              data: config,
-            }, null, 2)
-          }]
-        };
-      } catch (error) {
-        // Let MCP handle the error
-        throw error;
-      }
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify({
+            success: true,
+            data: config,
+          }, null, 2)
+        }]
+      };
     }
   );
 
@@ -133,29 +118,24 @@ export function registerBoardTools(server: McpServer, jira: Version3Client, jira
       },
     },
     async (args) => {
-      try {
-        // Args are automatically validated by MCP SDK
-        const validatedArgs = args;
-        const issues = await agile.board.getIssuesForBoard({
-          boardId: validatedArgs.boardId,
-          startAt: validatedArgs.startAt,
-          maxResults: validatedArgs.maxResults,
-          jql: validatedArgs.jql,
-        });
+      // Args are automatically validated by MCP SDK
+      const validatedArgs = args;
+      const issues = await agile.board.getIssuesForBoard({
+        boardId: validatedArgs.boardId,
+        startAt: validatedArgs.startAt,
+        maxResults: validatedArgs.maxResults,
+        jql: validatedArgs.jql,
+      });
 
-        return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify({
-              success: true,
-              data: issues,
-            }, null, 2)
-          }]
-        };
-      } catch (error) {
-        // Let MCP handle the error
-        throw error;
-      }
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify({
+            success: true,
+            data: issues,
+          }, null, 2)
+        }]
+      };
     }
   );
 }

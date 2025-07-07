@@ -142,7 +142,7 @@ export function validateIssueFields(
     allowedFields = [],
     maxStringLength = 32767,
     maxArrayLength = 50,
-    allowedCustomFieldTypes = ['string', 'text', 'number', 'boolean', 'date', 'datetime', 'array', 'object'],
+    _allowedCustomFieldTypes = ['string', 'text', 'number', 'boolean', 'date', 'datetime', 'array', 'object'],
     blockDangerousValues = true
   } = options;
   
