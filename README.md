@@ -139,6 +139,37 @@ cp .env.example .env
 npm test
 ```
 
+## 👩‍💻 Development
+
+This project includes pre-commit hooks to ensure code quality and prevent CI failures.
+
+### Pre-commit Hooks
+When you commit, the following checks automatically run:
+- **TypeScript compilation** - Ensures no build errors
+- **ESLint** - Fixes and validates code style
+- **Prettier** - Formats code consistently
+
+```bash
+# The hooks run automatically on commit, but you can also run them manually:
+
+# Check everything
+npm run build && npm run lint && npm run format
+
+# Fix formatting issues
+npm run format:write
+
+# Fix linting issues
+npm run lint -- --fix
+```
+
+### Skipping Hooks (Not Recommended)
+```bash
+# Only in emergencies - skips all pre-commit checks
+git commit --no-verify -m "emergency commit"
+```
+
+**Note**: All commits should pass these checks to maintain code quality and prevent CI failures.
+
 ## 🔧 Claude Desktop Integration
 
 Add this to your Claude Desktop MCP configuration:
