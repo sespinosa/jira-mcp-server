@@ -114,7 +114,7 @@ export function registerAttachmentTools(server: McpServer, jira: Version3Client)
           contentUrl: attachment.content,
           note: 'This saves attachment metadata. For actual file download, use the contentUrl directly.',
         };
-        
+
         writeFileSync(validatedSavePath, JSON.stringify(attachmentInfo, null, 2));
 
         logFileOperation('download_attachment', validatedSavePath, true);
